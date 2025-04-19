@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import StoryFreeForm from './StoryFreeForm'
 import GuidedStoryForm from './StoryGuidedForm'
 import StoryPreview from './StoryPreview'
@@ -19,16 +20,25 @@ export default function CreateStoryModal({ open, onOpenChange, userId }) {
   }
 
   const handlePublish = async (finalStory) => {
-    const { error } = await supabase.from('stories').upsert({
-      user_id: userId,
-      content: finalStory,
-    })
-    if (!error) {
-      onOpenChange(false)
-      reset()
+    try {
+      const { error } = await supabase.from('stories').upsert({
+        user_id: userId,
+        content: story,
+        improved_text: finalStory
+      });
+      
+      if (!error) {
+        onOpenChange(false)
+        reset()
+        // Optionnellement, rafraîchir la page pour montrer la nouvelle histoire
+        window.location.reload()
+      } else {
+        console.error("Erreur lors de la publication:", error)
+      }
+    } catch (err) {
+      console.error("Erreur:", err)
     }
   }
-  
 
   return (
     <Dialog open={open} onOpenChange={(val) => { onOpenChange(val); if (!val) reset() }}>
@@ -57,7 +67,7 @@ export default function CreateStoryModal({ open, onOpenChange, userId }) {
         )}
 
         {step === 3 && (
-          <StoryPreview story={story} onBack={() => setStep(2)} onPublish={(refactoredText) => handlePublish(refactoredText)} />
+          <StoryPreview story={story} onBack={() => setStep(2)} onPublish={handlePublish} />
         )}
       </DialogContent>
     </Dialog>

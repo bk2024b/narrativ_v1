@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { Facebook, Github, Instagram, Linkedin } from 'lucide-react'
 import CreateStoryModal from '@/components/story/CreateStoryModal'
-import { useSession } from '@supabase/auth-helpers-react'
 import { Button } from '@/components/ui/button'
 
 export default function UserProfile() {
@@ -13,12 +12,20 @@ export default function UserProfile() {
   const [profile, setProfile] = useState(null)
   const [story, setStory] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isOwner, setIsOwner] = useState(false)
   const { id } = useParams()
-  const session = useSession()
   
   useEffect(() => {
     async function fetchProfileData() {
       setLoading(true)
+      
+      // Vérifier si l'utilisateur est connecté
+      const { data: sessionData } = await supabase.auth.getSession()
+      const currentUser = sessionData?.session?.user
+      
+      if (currentUser && currentUser.id === id) {
+        setIsOwner(true)
+      }
       
       // Récupérer profil
       const { data: profileData, error: profileError } = await supabase
@@ -80,8 +87,6 @@ export default function UserProfile() {
     { icon: Instagram, url: instagram_url },
     { icon: Github, url: github_url },
   ].filter((link) => !!link.url)
-  
-  const isOwner = session?.user?.id === id
 
   return (
     <div className="max-w-3xl mx-auto p-6 text-center space-y-6">

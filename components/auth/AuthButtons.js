@@ -10,16 +10,16 @@ const providers = [
 ]
 
 export default function AuthButtons() {
+  // components/auth/AuthButtons.js (partie à modifier)
   const handleLogin = async (provider) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/profile`, // tu peux modifier ici
+        redirectTo: `${window.location.origin}/onboarding`, // Rediriger vers l'onboarding au lieu de /profile
       },
     })
     if (error) console.error('Erreur de login:', error.message)
   }
-
   return (
     <div className="flex flex-col gap-4 max-w-sm mx-auto">
       {providers.map(({ name, id }) => (

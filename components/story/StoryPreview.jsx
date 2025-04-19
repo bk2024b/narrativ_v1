@@ -7,15 +7,26 @@ export default function StoryPreview({ story, onBack, onPublish }) {
 
   const handleRefactorAndPublish = async () => {
     setLoading(true)
-    const res = await fetch('/api/refactor-story', {
-      method: 'POST',
-      body: JSON.stringify({ story }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const { result } = await res.json()
-    setRefactored(result)
-    await onPublish(result)
-    setLoading(false)
+    try {
+      const res = await fetch('/api/refactor-story', {
+        method: 'POST',
+        body: JSON.stringify({ story }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      
+      const data = await res.json()
+      
+      if (data.improvedStory) {
+        setRefactored(data.improvedStory)
+        await onPublish(data.improvedStory)
+      } else {
+        console.error("Réponse API invalide:", data)
+      }
+    } catch (error) {
+      console.error("Erreur lors de la refactorisation:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
