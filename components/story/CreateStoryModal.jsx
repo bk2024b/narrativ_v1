@@ -63,7 +63,7 @@ export default function CreateStoryModal({ open, onOpenChange, userId }) {
         )}
 
         {step === 2 && mode === 'guided' && (
-          <StoryGuidedForm setStory={setStory} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+          <GuidedStoryForm setStory={setStory} onNext={() => setStep(3)} onBack={() => setStep(1)} />
         )}
 
         {step === 3 && (

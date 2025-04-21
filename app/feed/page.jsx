@@ -18,7 +18,7 @@ export default function FeedPage() {
             nom,
             prenom,
             profession,
-            avatar_url
+            photo_url
           )
         `)
         .order('created_at', { ascending: false })
@@ -38,7 +38,7 @@ export default function FeedPage() {
           <CardContent className='p-6'>
             <div className='flex gap-4 items-center mb-4'>
               <Avatar>
-                <AvatarImage src={story.profiles.avatar_url} />
+                <AvatarImage src={story.profiles.photo_url} />
                 <AvatarFallback>
                   {story.profiles.nom?.[0] ?? '?'}
                 </AvatarFallback>
