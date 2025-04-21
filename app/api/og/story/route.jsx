@@ -1,4 +1,4 @@
-// app/api/og/route.jsx
+// app/api/og/story/route.jsx
 import { ImageResponse } from '@vercel/og'
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
@@ -8,10 +8,10 @@ export const runtime = 'edge'
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url)
-    const id = searchParams.get('id')
+    const storyId = searchParams.get('id')
     
     // Si pas d'ID fourni, retourner une image par défaut
-    if (!id) {
+    if (!storyId) {
       return new ImageResponse(
         (
           <div
@@ -28,7 +28,7 @@ export async function GET(req) {
               alignItems: 'center',
             }}
           >
-            Partage ton histoire inspirante
+            Une histoire inspirante à découvrir
           </div>
         ),
         {
@@ -38,61 +38,62 @@ export async function GET(req) {
       )
     }
 
-    // Récupérer les données du profil
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', id)
+    // Récupérer l'histoire et les données du profil associé
+    const { data: story, error } = await supabase
+      .from('stories')
+      .select('*, profiles:user_id(*)')
+      .eq('id', storyId)
       .single()
 
-    if (error || !profile) {
+    if (error || !story) {
       return NextResponse.json(
-        { error: 'Profil non trouvé' },
+        { error: 'Histoire non trouvée' },
         { status: 404 }
       )
     }
 
-    // Récupérer l'histoire si disponible
-    const { data: storyData } = await supabase
-      .from('stories')
-      .select('improved_text')
-      .eq('user_id', id)
-      .maybeSingle()
+    const profile = story.profiles
+    const storyExcerpt = story.improved_text 
+      ? story.improved_text.substring(0, 120) + '...' 
+      : 'Découvrez cette histoire inspirante'
 
-    const storyExcerpt = storyData?.improved_text 
-      ? storyData.improved_text.substring(0, 100) + '...' 
-      : 'Découvrez mon histoire inspirante'
-
-    // Générer l'image OG
+    // Générer l'image OG pour l'histoire
     return new ImageResponse(
       (
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
             width: '100%',
             height: '100%',
-            backgroundColor: '#f4f4f5',
+            backgroundColor: '#f8fafc',
             padding: '40px 60px',
             fontFamily: 'sans-serif',
             position: 'relative',
           }}
         >
-          {/* Arrière-plan */}
+          {/* Arrière-plan décoratif */}
           <div
             style={{
               position: 'absolute',
               top: 0,
-              right: 0,
-              width: '30%',
+              left: 0,
+              width: '100%',
               height: '100%',
-              backgroundColor: '#3b82f6',
+              display: 'flex',
+              justifyContent: 'flex-end',
               zIndex: 0,
-              opacity: 0.8,
             }}
-          />
+          >
+            <div
+              style={{
+                width: '35%',
+                height: '100%',
+                backgroundColor: '#3b82f6',
+                opacity: 0.2,
+              }}
+            />
+          </div>
           
           <div
             style={{
@@ -105,39 +106,50 @@ export async function GET(req) {
               zIndex: 1,
             }}
           >
-            {/* Titre */}
+            {/* Citation */}
             <div
               style={{
-                fontSize: 60,
-                fontWeight: 'bold',
-                color: '#18181b',
-                marginBottom: 20,
+                fontSize: 36,
+                lineHeight: 1.4,
+                color: '#1e293b',
+                marginBottom: 40,
+                maxWidth: '85%',
+                fontStyle: 'italic',
               }}
             >
-              {profile.prenoms} {profile.nom}
+              "{storyExcerpt}"
+            </div>
+            
+            {/* Ligne de séparation */}
+            <div 
+              style={{
+                width: '120px',
+                height: '6px',
+                backgroundColor: '#3b82f6',
+                marginBottom: 24,
+              }}
+            />
+            
+            {/* Auteur */}
+            <div
+              style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                color: '#0f172a',
+              }}
+            >
+              {profile?.prenoms} {profile?.nom}
             </div>
             
             {/* Profession */}
             <div
               style={{
-                fontSize: 40,
-                color: '#3b82f6',
+                fontSize: 24,
+                color: '#64748b',
                 marginBottom: 40,
               }}
             >
-              {profile.profession}
-            </div>
-            
-            {/* Extrait de l'histoire */}
-            <div
-              style={{
-                fontSize: 30,
-                color: '#52525b',
-                lineHeight: 1.4,
-                maxWidth: '70%',
-              }}
-            >
-              "{storyExcerpt}"
+              {profile?.profession || ''}
             </div>
             
             {/* Pied de page */}
@@ -145,12 +157,13 @@ export async function GET(req) {
               style={{
                 position: 'absolute',
                 bottom: 40,
-                left: 60,
+                right: 60,
                 fontSize: 24,
-                color: '#71717a',
+                color: '#3b82f6',
+                fontWeight: 'bold',
               }}
             >
-              Découvrez mon histoire inspirante
+              #HistoireInspirante
             </div>
           </div>
         </div>
