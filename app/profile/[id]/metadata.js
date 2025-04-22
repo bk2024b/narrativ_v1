@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase'
 
 export async function generateMetadata({ params }) {
-  const { id } = params
+  const id = await params.id
   
   // Récupérer les données du profil
   const { data: profile, error } = await supabase

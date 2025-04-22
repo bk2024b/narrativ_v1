@@ -5,57 +5,67 @@ import { notFound } from 'next/navigation'
 import ShareStoryButton from '@/components/story/ShareStoryButton'
 
 export async function generateMetadata({ params }) {
-  const { id } = params
+  const id = params.id
+
   
-  // Utilisation de createClient pour les requêtes côté serveur
-  const { data: story, error } = await supabase
-    .from('stories')
-    .select('*, profiles:user_id(*)')
-    .eq('id', id)
-    .single()
-  
-  if (error || !story) {
-    return {
-      title: 'Histoire non trouvée',
-      description: 'L\'histoire que vous recherchez n\'existe pas.',
+  try {
+    // Utilisation de createClient pour les requêtes côté serveur
+    const { data: story, error } = await supabase
+      .from('stories')
+      .select('*, profiles:user_id(*)')
+      .eq('id', id)
+      .maybeSingle()
+    
+    if (error || !story) {
+      return {
+        title: 'Histoire non trouvée',
+        description: 'L\'histoire que vous recherchez n\'existe pas.',
+      }
     }
-  }
-  
-  const profile = story.profiles
-  const title = `L'histoire inspirante de ${profile.prenoms} ${profile.nom}`
-  const description = story.improved_text 
-    ? `${story.improved_text.substring(0, 160)}...` 
-    : `Découvrez l'histoire inspirante de ${profile.prenoms} ${profile.nom}`
-  
-  // URL absolue pour l'image OG spécifique à l'histoire
-  const ogImageUrl = new URL(`/api/og/story?id=${id}`, process.env.NEXT_PUBLIC_BASE_URL).toString()
-  
-  return {
-    title,
-    description,
-    openGraph: {
+    
+    const profile = story.profiles
+    const title = `L'histoire inspirante de ${profile.prenoms} ${profile.nom}`
+    const description = story.improved_text 
+      ? `${story.improved_text.substring(0, 160)}...` 
+      : `Découvrez l'histoire inspirante de ${profile.prenoms} ${profile.nom}`
+    
+    // URL absolue pour l'image OG spécifique à l'histoire
+    const ogImageUrl = new URL(`/api/og/story?id=${id}`, process.env.NEXT_PUBLIC_BASE_URL).toString()
+    
+    return {
       title,
       description,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Histoire de ${profile.prenoms} ${profile.nom}`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImageUrl],
-    },
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: `Histoire de ${profile.prenoms} ${profile.nom}`,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImageUrl],
+      },
+    }
+  } catch (err) {
+    console.error("Erreur lors de la génération des métadonnées:", err)
+    return {
+      title: 'Histoire',
+      description: 'Découvrez cette histoire inspirante',
+    }
   }
 }
 
 export default async function StoryPage({ params }) {
-  const { id } = params
+  const id = params.id
+
   
   // Assurez-vous que l'ID est bien passé et utilisé correctement
   console.log("ID de l'histoire recherchée:", id)
@@ -66,7 +76,7 @@ export default async function StoryPage({ params }) {
       .from('stories')
       .select('*, profiles:user_id(*)')
       .eq('id', id)
-      .single()
+      .maybeSingle()
     
     if (error) {
       console.error("Erreur lors de la récupération de l'histoire:", error)
