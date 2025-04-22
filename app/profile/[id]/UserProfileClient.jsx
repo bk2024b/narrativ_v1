@@ -8,6 +8,7 @@ import CreateStoryModal from '@/components/story/CreateStoryModal'
 import { Button } from '@/components/ui/button'
 import EditProfileModal from '@/components/profile/EditProfileModal'
 import Link from 'next/link'
+import ShareStoryButtons from '@/components/story/ShareStoryButtons'
 
 export default function UserProfileClient({ id }) {
   const router = useRouter()
@@ -118,29 +119,6 @@ export default function UserProfileClient({ id }) {
     ), url: github_url },
   ].filter((link) => !!link.url)
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `Découvrez l'histoire inspirante de ${prenoms} ${nom}`,
-      text: `${prenoms} ${nom} - ${profession}`,
-      url: `${window.location.origin}/profile/${id}`
-    };
-    
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-        console.log('Profil partagé avec succès');
-      } else {
-        // Fallback pour les navigateurs qui ne supportent pas l'API Web Share
-        await navigator.clipboard.writeText(shareData.url);
-        setToastMessage('Lien copié dans le presse-papiers !');
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
-      }
-    } catch (error) {
-      console.error('Erreur lors du partage:', error);
-    }
-  };
-
   return (
     <div className="max-w-3xl mx-auto p-6 text-center space-y-6">
       <div className="flex flex-col items-center gap-3">
@@ -224,37 +202,13 @@ export default function UserProfileClient({ id }) {
           </div>
           <p className="whitespace-pre-wrap">{story.improved_text}</p>
 
-          <div className="mt-6 flex justify-end">
-            <Button 
-              onClick={() => {
-                if (!story.id) {
-                  setToastMessage('Erreur: ID de l\'histoire non valide')
-                  setShowToast(true)
-                  setTimeout(() => setShowToast(false), 3000)
-                  return
-                }
-
-                const url = `${window.location.origin}/story/${story.id}`
-                const title = `L'histoire inspirante de ${prenoms} ${nom}`
-                const text = `Découvrez l'histoire de ${prenoms} ${nom}, ${profession}`
-
-                if (navigator.share) {
-                  navigator.share({ title, text, url })
-                    .catch(error => console.error('Erreur de partage:', error))
-                } else {
-                  navigator.clipboard.writeText(url)
-                  setToastMessage('Lien de l\'histoire copié dans le presse-papiers !')
-                  setShowToast(true)
-                  setTimeout(() => setShowToast(false), 3000)
-                }
-              }}
-              variant="secondary"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <Share2 className="w-4 h-4" />
-              Partager l'histoire
-            </Button>
+          {/* Nouveau système de partage */}
+          <div className="mt-6">
+            {story.id && (
+              <div className="w-full">
+                <ShareStoryButtons story={story} profile={profile} />
+              </div>
+            )}
           </div>
         </div>
       ) : (
