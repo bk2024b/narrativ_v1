@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 
@@ -10,21 +11,35 @@ const providers = [
 ]
 
 export default function AuthButtons() {
-  // components/auth/AuthButtons.js (partie à modifier)
+  const [isLoading, setIsLoading] = useState(false)
+
   const handleLogin = async (provider) => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/onboarding`, // Rediriger vers l'onboarding au lieu de /profile
-      },
-    })
-    if (error) console.error('Erreur de login:', error.message)
+    setIsLoading(true)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          // On ne spécifie plus directement la redirection ici
+          // car on va gérer ça dans un hook useEffect après l'authentification
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) console.error('Erreur de login:', error.message)
+    } finally {
+      setIsLoading(false)
+    }
   }
+
   return (
     <div className="flex flex-col gap-4 max-w-sm mx-auto">
       {providers.map(({ name, id }) => (
-        <Button key={id} onClick={() => handleLogin(id)} variant="outline">
-          Se connecter avec {name}
+        <Button 
+          key={id} 
+          onClick={() => handleLogin(id)} 
+          variant="outline"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Chargement...' : `Se connecter avec ${name}`}
         </Button>
       ))}
     </div>
