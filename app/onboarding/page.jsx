@@ -76,25 +76,43 @@ export default function Onboarding() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p>Chargement...</p>
+          <div className="text-teal-400 font-medium">Chargement...</div>
         </div>
       </div>
     )
   }
 
+  // Calculer la progression pour la barre de progression
+  const progress = (step / 3) * 100
+
   return (
-    <div className="max-w-xl mx-auto p-6">
-      {step === 1 && <StepOne onNext={handleData} />}
-      {step === 2 && <StepTwo onNext={handleData} onBack={prevStep} />}
-      {step === 3 && (
-        <StepThree
-          onNext={(data) => {
-            setFormData({ ...formData, ...data })
-            finishOnboarding()
-          }}
-          onBack={prevStep}
-        />
-      )}
+    <div className="max-w-sm mx-auto p-6">
+      <div className="mb-8">
+        <div className="flex justify-between mb-2 text-sm text-gray-400">
+          <span>Étape {step} sur 3</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2">
+          <div 
+            className="bg-teal-400 h-2 rounded-full transition-all duration-300" 
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      </div>
+
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 shadow-lg">
+        {step === 1 && <StepOne onNext={handleData} />}
+        {step === 2 && <StepTwo onNext={handleData} onBack={prevStep} />}
+        {step === 3 && (
+          <StepThree
+            onNext={(data) => {
+              setFormData({ ...formData, ...data })
+              finishOnboarding()
+            }}
+            onBack={prevStep}
+          />
+        )}
+      </div>
     </div>
   )
 }
