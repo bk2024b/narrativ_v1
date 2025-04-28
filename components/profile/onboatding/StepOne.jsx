@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export default function StepOne({ onNext }) {
   const [data, setData] = useState({ nom: '', prenoms: '', profession: '' })
@@ -29,51 +31,53 @@ export default function StepOne({ onNext }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-white mb-6">Dis-nous qui tu es</h2>
+      <h2 className="text-xl font-semibold text-white text-center mb-6">Dis-nous qui tu es</h2>
       
       <div className="space-y-4">
         <div>
-          <input 
+          <Input 
             type="text"
             placeholder="Nom" 
             name="nom" 
             value={data.nom}
             onChange={handleChange}
-            className={`w-full bg-gray-900 text-white px-4 py-3 rounded-lg border ${errors.nom ? 'border-red-500' : 'border-gray-700'} focus:outline-none focus:border-teal-400 transition-all duration-300`}
+            className={`bg-gray-900 text-white border ${errors.nom ? 'border-red-500' : 'border-gray-700'} focus:border-teal-400`}
           />
           {errors.nom && <p className="text-red-500 text-sm mt-1">{errors.nom}</p>}
         </div>
 
         <div>
-          <input 
+          <Input 
             type="text"
             placeholder="Prénom(s)" 
             name="prenoms" 
             value={data.prenoms}
             onChange={handleChange}
-            className={`w-full bg-gray-900 text-white px-4 py-3 rounded-lg border ${errors.prenoms ? 'border-red-500' : 'border-gray-700'} focus:outline-none focus:border-teal-400 transition-all duration-300`}
+            className={`bg-gray-900 text-white border ${errors.prenoms ? 'border-red-500' : 'border-gray-700'} focus:border-teal-400`}
           />
           {errors.prenoms && <p className="text-red-500 text-sm mt-1">{errors.prenoms}</p>}
         </div>
 
         <div>
-          <input 
+          <Input 
             type="text"
             placeholder="Profession" 
             name="profession"
             value={data.profession}
             onChange={handleChange}
-            className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-teal-400 transition-all duration-300"
+            className="bg-gray-900 text-white border border-gray-700 focus:border-teal-400"
           />
         </div>
       </div>
 
-      <button 
-        onClick={handleSubmit}
-        className="w-full bg-teal-400 text-gray-900 px-6 py-4 rounded-lg hover:bg-teal-300 transition-all duration-300 font-medium mt-6"
-      >
-        Continuer
-      </button>
+      <div className="pt-4">
+        <Button 
+          onClick={handleSubmit}
+          className="w-full bg-teal-400 text-gray-900 py-3 rounded-lg hover:bg-teal-300 font-medium"
+        >
+          Continuer
+        </Button>
+      </div>
     </div>
   )
 }

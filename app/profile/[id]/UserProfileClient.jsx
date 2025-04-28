@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { notFound, useRouter } from 'next/navigation'
-import { Edit, LogOut, BookOpen, PlusCircle, Share2 } from 'lucide-react'
+import { Edit, PlusCircle, BookOpen } from 'lucide-react'
 import CreateStoryModal from '@/components/story/CreateStoryModal'
 import { Button } from '@/components/ui/button'
 import EditProfileModal from '@/components/profile/EditProfileModal'
 import Link from 'next/link'
 import ShareStoryButtons from '@/components/story/ShareStoryButtons'
 import { motion } from 'framer-motion'
+import ProfileSidebar from '@/components/profile/ProfileSidebar'
 
 export default function UserProfileClient({ id }) {
   const router = useRouter()
@@ -129,12 +130,20 @@ export default function UserProfileClient({ id }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
+      {/* Sidebar */}
+      <ProfileSidebar 
+        profile={profile}
+        isOwner={isOwner}
+        onEditProfile={() => setEditProfileOpen(true)}
+        onSignOut={handleSignOut}
+      />
+      
       {/* Éléments décoratifs d'arrière-plan */}
       <div className="absolute top-40 right-0 w-96 h-96 bg-teal-500 rounded-full filter blur-3xl opacity-5 z-0"></div>
       <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-teal-400 rounded-full filter blur-3xl opacity-5 z-0"></div>
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500 rounded-full filter blur-3xl opacity-5 z-0"></div>
       
-      <main className="container mx-auto px-6 py-16 z-10 relative">
+      <main className="ml-20 px-6 py-16 z-10 relative">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 30 }}
@@ -178,47 +187,20 @@ export default function UserProfileClient({ id }) {
               )}
             </div>
             
-            {/* Boutons d'action pour l'utilisateur connecté */}
+            {/* Bouton pour créer une histoire */}
             {isOwner && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-wrap justify-center gap-3 mt-8"
+                className="flex justify-center mt-8"
               >
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-2 border-teal-500/30 hover:bg-teal-500/10"
-                  onClick={() => setEditProfileOpen(true)}
-                >
-                  <Edit className="w-4 h-4" />
-                  Éditer mon profil
-                </Button>
-                
                 <Button 
                   className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600"
                   onClick={() => setOpen(true)}
                 >
                   <PlusCircle className="w-4 h-4" />
                   Créer mon histoire
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-2 border-teal-500/30 hover:bg-teal-500/10"
-                  onClick={() => router.push('/feed')}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Accéder au feed
-                </Button>
-                
-                <Button 
-                  variant="destructive" 
-                  className="flex items-center gap-2"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Déconnexion
                 </Button>
               </motion.div>
             )}
@@ -250,7 +232,7 @@ export default function UserProfileClient({ id }) {
                 <p className="whitespace-pre-wrap text-gray-300">{story.improved_text}</p>
               </div>
 
-              {/* Nouveau système de partage */}
+              {/* Système de partage */}
               <div className="mt-6">
                 {story.id && (
                   <div className="w-full">
