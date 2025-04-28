@@ -5,6 +5,8 @@ import { Edit, LogOut, BookOpen, Calendar, Mic, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { UserIcon } from 'lucide-react'
 
 export default function ProfileSidebar({ profile, isOwner, onEditProfile, onSignOut }) {
   const router = useRouter()
@@ -62,13 +64,16 @@ export default function ProfileSidebar({ profile, isOwner, onEditProfile, onSign
               onClick={onEditProfile}
               className="relative overflow-hidden group rounded-full border-2 border-teal-500 p-0.5"
             >
-              <div className="w-12 h-12 overflow-hidden rounded-full bg-gradient-to-br from-teal-600/20 to-teal-400/5">
-                <img
+              <Avatar className="w-12 h-12 overflow-hidden rounded-full bg-gradient-to-br from-teal-600/20 to-teal-400/5">
+                <AvatarImage
                   src={profile?.photo_url || '/placeholder-user.png'}
                   alt="Profil"
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
-              </div>
+                <AvatarFallback className="bg-gradient-to-br from-teal-600/20 to-teal-400/5">
+                  <UserIcon className="w-6 h-6 text-teal-400" />
+                </AvatarFallback>
+              </Avatar>
               <div className="absolute inset-0 bg-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full flex items-center justify-center">
                 <Edit className="w-5 h-5 text-white" />
               </div>

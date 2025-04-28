@@ -1,10 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/lib/supabase'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { UserIcon, Upload, X } from 'lucide-react'
 
 export default function EditProfileModal({ open, onOpenChange, userId, onProfileUpdate }) {
   const [formData, setFormData] = useState({
@@ -16,8 +18,13 @@ export default function EditProfileModal({ open, onOpenChange, userId, onProfile
     linkedin_url: '',
     instagram_url: '',
     github_url: '',
+    photo_url: '',
   })
+  
   const [loading, setLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [preview, setPreview] = useState(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     if (open && userId) {
@@ -44,7 +51,13 @@ export default function EditProfileModal({ open, onOpenChange, userId, onProfile
           linkedin_url: data.linkedin_url || '',
           instagram_url: data.instagram_url || '',
           github_url: data.github_url || '',
+          photo_url: data.photo_url || '',
         })
+        
+        // Si une photo existe, définir l'aperçu
+        if (data.photo_url) {
+          setPreview(data.photo_url)
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la récupération du profil:', error)
@@ -54,6 +67,58 @@ export default function EditProfileModal({ open, onOpenChange, userId, onProfile
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePhotoClick = () => {
+    fileInputRef.current.click()
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Afficher l'aperçu
+    const objectUrl = URL.createObjectURL(file)
+    setPreview(objectUrl)
+
+    try {
+      setIsUploading(true)
+
+      // Récupérer l'utilisateur actuel
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Utilisateur non connecté")
+
+      // Générer un nom de fichier unique avec l'extension d'origine
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      
+      // Uploader le fichier dans le bucket "avatars"
+      const { data: uploadData, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file)
+
+      if (error) throw error
+
+      // Récupérer l'URL publique
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+
+      // Mettre à jour les données avec l'URL de la photo
+      setFormData(prev => ({ ...prev, photo_url: urlData.publicUrl }))
+      
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error)
+      alert("Une erreur est survenue lors de l'envoi de votre photo")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const removePhoto = () => {
+    setPreview(null)
+    setFormData(prev => ({ ...prev, photo_url: '' }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleSubmit = async (e) => {
@@ -88,6 +153,56 @@ export default function EditProfileModal({ open, onOpenChange, userId, onProfile
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-5 mt-2">
+          {/* Section photo de profil */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="relative mb-3">
+              {preview || formData.photo_url ? (
+                <>
+                  <Avatar className="w-20 h-20 border-2 border-teal-400">
+                    <AvatarImage src={preview || formData.photo_url} alt="Photo de profil" />
+                    <AvatarFallback className="bg-gray-700">
+                      <UserIcon className="w-10 h-10 text-gray-400" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <button 
+                    type="button"
+                    onClick={removePhoto}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </>
+              ) : (
+                <div 
+                  onClick={handlePhotoClick}
+                  className="w-20 h-20 rounded-full bg-gray-700 border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-teal-400 transition-colors"
+                >
+                  <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                  <span className="text-xs text-gray-400">Photo</span>
+                </div>
+              )}
+            </div>
+            
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+            
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePhotoClick}
+              disabled={isUploading}
+              className="text-teal-400 border-gray-700 text-xs mb-2"
+            >
+              {isUploading ? 'Envoi en cours...' : 'Changer la photo'}
+            </Button>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block text-gray-300">Nom</label>

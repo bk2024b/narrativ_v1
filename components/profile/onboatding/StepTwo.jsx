@@ -67,6 +67,31 @@ export default function StepTwo({ onNext, onBack }) {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  const handleSubmit = async () => {
+    try {
+      // Récupérer l'utilisateur actuel pour son ID
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Utilisateur non connecté")
+      
+      // Mise à jour du profil dans la base de données
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          bio: data.bio,
+          photo_url: data.photo_url
+        })
+        .eq('id', user.id)
+      
+      if (error) throw error
+      
+      // Si tout s'est bien passé, passer à l'étape suivante
+      onNext(data)
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du profil:", error)
+      alert("Une erreur est survenue lors de la sauvegarde de votre profil")
+    }
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-white text-center mb-6">Complète ton profil</h2>
@@ -141,7 +166,7 @@ export default function StepTwo({ onNext, onBack }) {
         </Button>
         
         <Button 
-          onClick={() => onNext(data)}
+          onClick={handleSubmit}
           className="flex-1 bg-teal-400 text-gray-900 hover:bg-teal-300"
         >
           Continuer
