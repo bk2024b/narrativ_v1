@@ -82,101 +82,123 @@ export default function EditProfileModal({ open, onOpenChange, userId, onProfile
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-gray-900 border border-gray-800">
         <DialogHeader>
-          <DialogTitle>Modifier mon profil</DialogTitle>
+          <DialogTitle className="text-teal-400 text-center text-xl font-medium">Modifier mon profil</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        
+        <form onSubmit={handleSubmit} className="space-y-5 mt-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Nom</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">Nom</label>
               <Input 
                 name="nom"
                 value={formData.nom}
                 onChange={handleChange}
-                placeholder="Dupont" 
+                placeholder="Dupont"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Prénom(s)</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">Prénom(s)</label>
               <Input 
                 name="prenoms"
                 value={formData.prenoms}
                 onChange={handleChange}
-                placeholder="Marie" 
+                placeholder="Marie"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Profession</label>
+            <label className="text-sm font-medium mb-1 block text-gray-300">Profession</label>
             <Input 
               name="profession"
               value={formData.profession}
               onChange={handleChange}
-              placeholder="Développeur web" 
+              placeholder="Développeur web"
+              className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Bio</label>
+            <label className="text-sm font-medium mb-1 block text-gray-300">Bio</label>
             <Textarea 
               name="bio"
               value={formData.bio}
               onChange={handleChange}
               placeholder="Quelques mots à propos de vous..."
+              className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200 min-h-20" 
             />
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Réseaux sociaux</h3>
+            <div className="flex items-center gap-3">
+              <div className="h-px bg-gray-700 flex-grow"></div>
+              <h3 className="text-sm font-medium text-teal-400">Réseaux sociaux</h3>
+              <div className="h-px bg-gray-700 flex-grow"></div>
+            </div>
             
             <div>
-              <label className="text-sm font-medium mb-1 block">Facebook</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">Facebook</label>
               <Input 
                 name="facebook_url"
                 value={formData.facebook_url}
                 onChange={handleChange}
-                placeholder="https://facebook.com/username" 
+                placeholder="https://facebook.com/username"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-1 block">LinkedIn</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">LinkedIn</label>
               <Input 
                 name="linkedin_url"
                 value={formData.linkedin_url}
                 onChange={handleChange}
-                placeholder="https://linkedin.com/in/username" 
+                placeholder="https://linkedin.com/in/username"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-1 block">Instagram</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">Instagram</label>
               <Input 
                 name="instagram_url"
                 value={formData.instagram_url}
                 onChange={handleChange}
-                placeholder="https://instagram.com/username" 
+                placeholder="https://instagram.com/username"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-1 block">GitHub</label>
+              <label className="text-sm font-medium mb-1 block text-gray-300">GitHub</label>
               <Input 
                 name="github_url"
                 value={formData.github_url}
                 onChange={handleChange}
-                placeholder="https://github.com/username" 
+                placeholder="https://github.com/username"
+                className="border-teal-600/40 focus-visible:border-teal-500 focus-visible:ring-teal-500/20 bg-gray-800/50 text-gray-200" 
               />
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-gray-800">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="w-full bg-transparent text-gray-300 border-gray-700 hover:bg-gray-800 hover:text-gray-100"
+            >
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-transparent text-teal-400 border border-teal-600 hover:bg-gray-800 hover:border-teal-500 transition-all duration-200"
+            >
               {loading ? 'Enregistrement...' : 'Enregistrer'}
             </Button>
           </DialogFooter>

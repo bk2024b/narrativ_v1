@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import EditProfileModal from '@/components/profile/EditProfileModal'
 import Link from 'next/link'
 import ShareStoryButtons from '@/components/story/ShareStoryButtons'
+import { motion } from 'framer-motion'
 
 export default function UserProfileClient({ id }) {
   const router = useRouter()
@@ -20,8 +21,11 @@ export default function UserProfileClient({ id }) {
   const [isOwner, setIsOwner] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [mounted, setMounted] = useState(false)
   
   useEffect(() => {
+    setMounted(true)
+    
     async function fetchProfileData() {
       setLoading(true)
       
@@ -77,7 +81,11 @@ export default function UserProfileClient({ id }) {
   }
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Chargement...</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex items-center justify-center">
+        <div className="animate-pulse text-teal-400 text-xl">Chargement...</div>
+      </div>
+    )
   }
 
   if (!profile) {
@@ -120,100 +128,153 @@ export default function UserProfileClient({ id }) {
   ].filter((link) => !!link.url)
 
   return (
-    <div className="max-w-3xl mx-auto p-6 text-center space-y-6">
-      <div className="flex flex-col items-center gap-3">
-        <img
-          src={photo_url || '/placeholder-user.png'}
-          alt="photo profil"
-          className="w-24 h-24 rounded-full object-cover"
-        />
-        <div>
-          <h1 className="text-2xl font-bold">{prenoms} {nom}</h1>
-          <p className="text-muted-foreground">{profession}</p>
-        </div>
-      </div>
-
-      {bio && <p className="italic">{bio}</p>}
-
-      {socialLinks.length > 0 && (
-        <div className="flex justify-center gap-4">
-          {socialLinks.map(({ icon: Icon, url }, i) => (
-            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-              <Icon className="w-5 h-5 text-blue-500 hover:scale-110 transition" />
-            </a>
-          ))}
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
+      {/* Éléments décoratifs d'arrière-plan */}
+      <div className="absolute top-40 right-0 w-96 h-96 bg-teal-500 rounded-full filter blur-3xl opacity-5 z-0"></div>
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-teal-400 rounded-full filter blur-3xl opacity-5 z-0"></div>
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500 rounded-full filter blur-3xl opacity-5 z-0"></div>
       
-      {/* Boutons d'action pour l'utilisateur connecté */}
-      {isOwner && (
-        <div className="flex flex-wrap justify-center gap-3">
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={() => setEditProfileOpen(true)}
-          >
-            <Edit className="w-4 h-4" />
-            Éditer mon profil
-          </Button>
-          
-          <Button 
-            className="flex items-center gap-2"
-            onClick={() => setOpen(true)}
-          >
-            <PlusCircle className="w-4 h-4" />
-            Créer mon histoire
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={() => router.push('/feed')}
-          >
-            <BookOpen className="w-4 h-4" />
-            Accéder au feed
-          </Button>
-          
-          <Button 
-            variant="destructive" 
-            className="flex items-center gap-2"
-            onClick={handleSignOut}
-          >
-            <LogOut className="w-4 h-4" />
-            Déconnexion
-          </Button>
-        </div>
-      )}
-      
-  
-
-      {story ? (
-        <div className="text-left bg-muted p-6 rounded-xl shadow mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Son histoire</h2>
-            {/* Vérifier que l'ID existe avant de créer le lien */}
-            {story.id && (
-              <Link href={`/story/${story.id}`}>
-                <Button variant="outline" size="sm">
-                  Voir l'histoire complète
-                </Button>
-              </Link>
-            )}
-          </div>
-          <p className="whitespace-pre-wrap">{story.improved_text}</p>
-
-          {/* Nouveau système de partage */}
-          <div className="mt-6">
-            {story.id && (
-              <div className="w-full">
-                <ShareStoryButtons story={story} profile={profile} />
+      <main className="container mx-auto px-6 py-16 z-10 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 30 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          className="max-w-3xl mx-auto"
+        >
+          <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl p-8 mb-8">
+            <div className="flex flex-col items-center gap-5">
+              <div className="relative h-28 w-28 overflow-hidden rounded-full shadow-lg border-2 border-teal-500 bg-gradient-to-br from-teal-500/20 to-teal-500/5">
+                <img
+                  src={photo_url || '/placeholder-user.png'}
+                  alt="photo profil"
+                  className="w-full h-full object-cover"
+                />
               </div>
+              
+              <div className="text-center">
+                <h1 className="text-3xl font-bold mb-1">{prenoms} {nom}</h1>
+                <div className="h-1 w-24 bg-gradient-to-r from-teal-600 to-teal-400 rounded-full mx-auto mb-2"></div>
+                <p className="text-teal-400">{profession}</p>
+              </div>
+
+              {bio && (
+                <p className="italic text-gray-300 text-center max-w-lg mx-auto mt-2">{bio}</p>
+              )}
+
+              {socialLinks.length > 0 && (
+                <div className="flex justify-center gap-5 mt-2">
+                  {socialLinks.map(({ icon: Icon, url }, i) => (
+                    <a 
+                      key={i} 
+                      href={url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:bg-gray-700/50 p-2 rounded-full transition-all duration-300"
+                    >
+                      <Icon className="w-5 h-5 text-teal-400 hover:scale-110 transition" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Boutons d'action pour l'utilisateur connecté */}
+            {isOwner && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex flex-wrap justify-center gap-3 mt-8"
+              >
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2 border-teal-500/30 hover:bg-teal-500/10"
+                  onClick={() => setEditProfileOpen(true)}
+                >
+                  <Edit className="w-4 h-4" />
+                  Éditer mon profil
+                </Button>
+                
+                <Button 
+                  className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600"
+                  onClick={() => setOpen(true)}
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Créer mon histoire
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2 border-teal-500/30 hover:bg-teal-500/10"
+                  onClick={() => router.push('/feed')}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Accéder au feed
+                </Button>
+                
+                <Button 
+                  variant="destructive" 
+                  className="flex items-center gap-2"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Déconnexion
+                </Button>
+              </motion.div>
             )}
           </div>
-        </div>
-      ) : (
-        <p className="text-muted-foreground italic">Aucune histoire partagée.</p>
-      )}
+          
+          {story ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl p-8 mb-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-xl font-semibold text-white">Son histoire</h2>
+                </div>
+                {/* Vérifier que l'ID existe avant de créer le lien */}
+                {story.id && (
+                  <Link href={`/story/${story.id}`}>
+                    <Button variant="outline" size="sm" className="border-teal-500/30 hover:bg-teal-500/10">
+                      Voir l'histoire complète
+                    </Button>
+                  </Link>
+                )}
+              </div>
+              
+              <div className="bg-gray-900/50 p-5 rounded-xl">
+                <p className="whitespace-pre-wrap text-gray-300">{story.improved_text}</p>
+              </div>
+
+              {/* Nouveau système de partage */}
+              <div className="mt-6">
+                {story.id && (
+                  <div className="w-full">
+                    <ShareStoryButtons story={story} profile={profile} />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl p-8 text-center">
+              <p className="text-gray-400 italic">Aucune histoire partagée.</p>
+              {isOwner && (
+                <Button 
+                  className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 mt-4 mx-auto"
+                  onClick={() => setOpen(true)}
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Créez votre première histoire
+                </Button>
+              )}
+            </div>
+          )}
+        </motion.div>
+      </main>
       
       {isOwner && (
         <>
@@ -228,7 +289,7 @@ export default function UserProfileClient({ id }) {
       )}
       
       {showToast && (
-        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg">
+        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg z-50">
           {toastMessage}
         </div>
       )}
