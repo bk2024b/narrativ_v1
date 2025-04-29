@@ -137,7 +137,11 @@ export default function ProfileSidebar({ profile, isOwner, onEditProfile, onSign
               icon={<LogOut className="w-5 h-5" />} 
               label="Déconnexion"
               isExpanded={isExpanded}
-              onClick={onSignOut}
+              onClick={() => {
+                if (typeof onSignOut === 'function') {
+                  onSignOut();
+                }
+              }}
               className="text-red-400 hover:text-red-300"
             />
           </div>
@@ -154,10 +158,16 @@ function SidebarItem({ icon, label, isExpanded, onClick, disabled = false, class
     visible: { opacity: 1, x: 0 }
   }
   
+  const handleClick = (e) => {
+    if (!disabled && typeof onClick === 'function') {
+      onClick(e);
+    }
+  };
+  
   return (
     <div className="w-full px-4">
       <button
-        onClick={onClick}
+        onClick={handleClick}
         disabled={disabled}
         className={`flex items-center w-full py-2 px-2 ${isExpanded ? 'justify-start' : 'justify-center'} rounded-lg transition-colors duration-300 hover:bg-gray-800/70 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       >
